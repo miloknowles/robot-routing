@@ -16,7 +16,7 @@ std::vector<std::string> ParseTuple(const std::string& input_str)
 {
 	// Remove spaces, parens, and square brackets.
 	std::string tupstr = input_str;
-	std::vector<char> remove_chars = { ')', '(', ' ', '[', ']'};
+	std::vector<char> remove_chars = { ')', '(', ' ', '[', ']' };
 	for (const char ch : remove_chars) {
 		tupstr.erase(std::remove(tupstr.begin(), tupstr.end(), ch), tupstr.end());
 	}
@@ -46,13 +46,13 @@ void UpdateMinMaxPoint(const Point2i pt, Point2i* min, Point2i* max)
 
 Point2i CardinalDirectionToVector(const std::string& dir)
 {
-	if (dir == "N") {
+	if (dir == "'N'") {
 		return Point2i(0, 1);
-	} else if (dir == "E") {
+	} else if (dir == "'E'") {
 		return Point2i(1, 0);
-	} else if (dir == "S") {
+	} else if (dir == "'S'") {
 		return Point2i(0, -1);
-	} else if (dir == "W") {
+	} else if (dir == "'W'") {
 		return Point2i(-1, 0);
 	} else {
 		throw std::runtime_error("Unrecognized cardinal direction.");
@@ -75,6 +75,12 @@ RoutingProblem::RoutingProblem(const std::string& filepath)
 	const std::vector<std::string> barriers = ParseTuple(barr_line);
 	const std::vector<std::string> lasers = ParseTuple(laser_line);
 	const std::vector<std::string> wormholes = ParseTuple(worm_line);
+
+	std::cout << orig_line << std::endl;
+	std::cout << dest_line << std::endl;
+	std::cout << barr_line << std::endl;
+	std::cout << laser_line << std::endl;
+	std::cout << worm_line << std::endl;
 
 	// Sanity checks on length.
 	assert(orig.size() == 2 && dest.size() == 2);
@@ -102,6 +108,7 @@ RoutingProblem::RoutingProblem(const std::string& filepath)
 	for (size_t i = 0; i < lasers.size() / 3; ++i) {
 		const Point2i xy(std::stoi(lasers.at(3*i)), std::stoi(lasers.at(3*i+1)));
 		const std::string dir = lasers.at(3*i + 2);
+		std::cout << dir << std::endl;
 		lasers_.emplace_back(xy, CardinalDirectionToVector(dir));
 		UpdateMinMaxPoint(xy, &min_corner, &max_corner);
 	}
@@ -147,7 +154,7 @@ RoutingProblem::RoutingProblem(const std::string& filepath)
 	}
 
 	// Finally, fill in the wormhole map. Make each wormhole location point to the other.
-	wormhole_map_ = Grid<Point2i*>::Create(width, height, grid_min_corner, nullptr);
+	wormhole_map_ = Grid<Point2i*>::Create(width + 4, height + 4, grid_min_corner, nullptr);
 	for (Wormhole wh : wormholes_) {
 		wormhole_map_->SetCell(wh.first, &wh.second);
 		wormhole_map_->SetCell(wh.second, &wh.first);

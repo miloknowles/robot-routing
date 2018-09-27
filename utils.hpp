@@ -21,7 +21,7 @@ struct Point2i
 /**
  * @brief Manhattan distance between two integer points.
  */
-float ManhattanDistance(const Point2i& p1, const Point2i& p2)
+inline float ManhattanDistance(const Point2i& p1, const Point2i& p2)
 {
 	return std::abs(p1.x - p2.x) + std::abs(p1.y - p2.y);
 }
