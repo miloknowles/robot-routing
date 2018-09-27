@@ -10,6 +10,7 @@
 namespace routing {
 
 typedef std::pair<Point2i, Point2i> Wormhole;
+typedef std::pair<Point2i, Point2i> Laser;
 
 /**
  * @brief Represents a unique state on the infinite game board.
@@ -54,6 +55,7 @@ class RoutingProblem {
  	Point2i goal_point_;
  	std::shared_ptr<Grid<int>> obstacle_map_;
  	std::shared_ptr<Grid<Point2i*>> wormhole_map_;
+ 	std::vector<Laser> lasers_;
   std::vector<Wormhole> wormholes_;
 };
 

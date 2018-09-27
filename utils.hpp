@@ -35,8 +35,8 @@ class Grid {
 	/**
 	 * @brief Initialize an empty grid with dimensions.
 	 */
-	Grid(const size_t w, const size_t h, const CellType& init)
-			: width_(w), height_(h)
+	Grid(const size_t w, const size_t h, const Point2i& min_cell, const CellType& init)
+			: width_(w), height_(h), min_cell_coord_(min_cell)
 	{
 		// Initalize the grid with value "init" everywhere.
 		grid_.resize(height_); // Should have height rows.
@@ -50,26 +50,35 @@ class Grid {
 	/**
 	 * @brief Convenience method to create a shared pointer to a grid.
 	 */
-	static void Create(const size_t w, const size_t h, const CellType& init)
+	static std::shared_ptr<Grid<CellType>> Create(
+		const size_t w, const size_t h, const Point2i& min_cell, const CellType& init)
 	{
-		return std::make_shared<Grid<CellType>>(w, h, init);
+		return std::make_shared<Grid<CellType>>(w, h, min_cell, init);
 	}
 
 	const CellType& GetCell(const Point2i& xy) const
 	{
 		assert(xy.x < width_ && xy.y < height_);
-		return grid_.at(xy.y).at(xy.x);
+		return grid_.at(xy.y - min_cell_coord_.y).at(xy.x - min_cell_coord_.x);
 	}
 	
 	void SetCell(const Point2i& xy, const CellType& val)
 	{
 		assert(xy.x < width_ && xy.y < height_);
-		grid_.at(xy.y).at(xy.x) = val;
+		grid_.at(xy.y - min_cell_coord_.y).at(xy.x - min_cell_coord_.x) = val;
+	}
+
+	bool CellValid(const Point2i& xy) const
+	{
+		const int x = (xy.x - min_cell_coord_.x);
+		const int y = (xy.y - min_cell_coord_.y);
+		return x >= 0 && x < width_ && y >= 0 && y < height_;
 	}
 
  private:
  	const size_t width_;
  	const size_t height_;
+ 	const Point2i min_cell_coord_;
  	std::vector<std::vector<CellType>> grid_;
 };
 
