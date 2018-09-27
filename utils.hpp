@@ -4,6 +4,10 @@
 #include <iostream>
 #include <assert.h>
 #include <memory>
+#include <fstream>
+#include <algorithm>
+#include <sstream>
+#include <string>
 
 namespace routing {
 
@@ -81,5 +85,55 @@ class Grid {
  	const Point2i min_cell_coord_;
  	std::vector<std::vector<CellType>> grid_;
 };
+
+/**
+ * @brief Parses a tuple of the form (a, b, c, ...). Assumes values are comma-separated.
+ */
+inline std::vector<std::string> ParseTuple(const std::string& input_str)
+{
+	// Remove spaces, parens, and square brackets.
+	std::string tupstr = input_str;
+	std::vector<char> remove_chars = { ')', '(', ' ', '[', ']' };
+	for (const char ch : remove_chars) {
+		tupstr.erase(std::remove(tupstr.begin(), tupstr.end(), ch), tupstr.end());
+	}
+
+	// Split the input string around commas.
+	std::vector<std::string> tokens;
+	std::stringstream ss(tupstr);
+	std::string tmp;
+	while (std::getline(ss, tmp, ',')) {
+		tokens.emplace_back(tmp);
+	}
+
+	return tokens;
+}
+
+/**
+ * @brief Convenience function to update a min and max point based on a new point.
+ * If the new point exceeds either extrema, they are updated.
+ */
+inline void UpdateMinMaxPoint(const Point2i pt, Point2i* min, Point2i* max)
+{
+	min->x = std::min(min->x, pt.x);
+	min->y = std::min(min->y, pt.y);
+	max->x = std::max(max->x, pt.x);
+	max->y = std::max(max->y, pt.y);
+}
+
+inline Point2i CardinalDirectionToVector(const std::string& dir)
+{
+	if (dir == "'N'") {
+		return Point2i(0, 1);
+	} else if (dir == "'E'") {
+		return Point2i(1, 0);
+	} else if (dir == "'S'") {
+		return Point2i(0, -1);
+	} else if (dir == "'W'") {
+		return Point2i(-1, 0);
+	} else {
+		throw std::runtime_error("Unrecognized cardinal direction.");
+	}
+}
 
 }

@@ -11,6 +11,7 @@ int main(int argc, char const *argv[])
 	if (argc < 2) {
 		throw std::runtime_error("Need to specify a filename for a problem.txt");
 	}
+	
 	const std::string problem_path(argv[1]);
 	std::cout << "Loading from: " << problem_path << std::endl;
 
