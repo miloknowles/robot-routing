@@ -7,3 +7,6 @@ add_library(robot_routing
 	utils.cpp
 	routing_problem.cpp
 )
+
+add_executable(run_solver main.cpp)
+target_link_libraries(run_solver robot_routing)
