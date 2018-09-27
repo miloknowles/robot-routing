@@ -1,2 +1,0 @@
-/usr/bin/ar qc librobot_routing.a  CMakeFiles/robot_routing.dir/utils.cpp.o CMakeFiles/robot_routing.dir/routing_problem.cpp.o
-/usr/bin/ranlib librobot_routing.a
