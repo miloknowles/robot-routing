@@ -76,12 +76,6 @@ RoutingProblem::RoutingProblem(const std::string& filepath)
 	const std::vector<std::string> lasers = ParseTuple(laser_line);
 	const std::vector<std::string> wormholes = ParseTuple(worm_line);
 
-	std::cout << orig_line << std::endl;
-	std::cout << dest_line << std::endl;
-	std::cout << barr_line << std::endl;
-	std::cout << laser_line << std::endl;
-	std::cout << worm_line << std::endl;
-
 	// Sanity checks on length.
 	assert(orig.size() == 2 && dest.size() == 2);
 	assert(barriers.size() % 2 == 0); // Should contain pairs of coordinates.
@@ -108,7 +102,6 @@ RoutingProblem::RoutingProblem(const std::string& filepath)
 	for (size_t i = 0; i < lasers.size() / 3; ++i) {
 		const Point2i xy(std::stoi(lasers.at(3*i)), std::stoi(lasers.at(3*i+1)));
 		const std::string dir = lasers.at(3*i + 2);
-		std::cout << dir << std::endl;
 		lasers_.emplace_back(xy, CardinalDirectionToVector(dir));
 		UpdateMinMaxPoint(xy, &min_corner, &max_corner);
 	}
