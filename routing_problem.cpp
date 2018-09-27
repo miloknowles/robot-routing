@@ -1,69 +1,59 @@
-#include <ifstream>
+#include <fstream>
+#include <algorithm>
+#include <sstream>
+#include <string>
 
 #include "routing_problem.hpp"
 
 namespace routing {
 
-std::vector<std::string> ParseTuple(const std::string& tupstr)
+/**
+ * @brief Parses a tuple of the form (a, b, c, ...). Assumes values are comma-separated.
+ */
+std::vector<std::string> ParseTuple(const std::string& input_str)
 {
-
+	// Remove spaces and parentheses.
+	std::string tupstr = input_str;
 	tupstr.erase(std::remove(tupstr.begin(), tupstr.end(), '('), tupstr.end());
 	tupstr.erase(std::remove(tupstr.begin(), tupstr.end(), ')'), tupstr.end());
 	tupstr.erase(std::remove(tupstr.begin(), tupstr.end(), ' '), tupstr.end());
 
-	std::vector<int> tokens;
+	std::vector<std::string> tokens;
 	std::stringstream ss(tupstr);
 	std::string tmp;
 
-	while (getline(ss, tmp, ',')) {
+	while (std::getline(ss, tmp, ',')) {
 		tokens.emplace_back(tmp);
 	}
 
 	return tokens;
 }
 
-int main() 
-{ 
-      
-    string line = "GeeksForGeeks is a must try"; 
-      
-    // Vector of string to save tokens 
-    vector <string> tokens; 
-      
-    // stringstream class check1 
-    stringstream check1(line); 
-      
-    string intermediate; 
-      
-    // Tokenizing w.r.t. space ' ' 
-    while(getline(check1, intermediate, ' ')) 
-    { 
-        tokens.push_back(intermediate); 
-    } 
-      
-    // Printing the token vector 
-    for(int i = 0; i < tokens.size(); i++) 
-        cout << tokens[i] << '\n'; 
-} 
-
 RoutingProblem::RoutingProblem(const std::string& filepath)
 {
-	const std::ifstream infile(filepath);
-	const std::string orig_line, dest_line, barr_line, laser_line, worm_line;
+	std::ifstream infile(filepath);
+	std::string orig_line, dest_line, barr_line, laser_line, worm_line;
 	std::getline(infile, orig_line);
 	std::getline(infile, dest_line);
 	std::getline(infile, barr_line);
 	std::getline(infile, laser_line);
 	std::getline(infile, worm_line);
+
+	// Parse the origin and destination tuples.
+	const std::vector<std::string> orig = ParseTuple(orig_line);
+	const std::vector<std::string> dest = ParseTuple(dest_line);
+	assert(orig.size() == 2 && dest.size() == 2);
+	origin_point_ = Point2i(std::stoi(orig[0]), std::stoi(orig[1]));
+	goal_point_ = Point2i(std::stoi(dest[0]), std::stoi(dest[1]));
 }
 
-bool RoutingProblem::IsNodeValid(const Node& node)
+bool RoutingProblem::IsNodeValid(const Node& node) const
 {
-	const int cell_active_timestep = obstacle_map_.GetCell(node.point);
+	const int cell_active_timestep = obstacle_map_->GetCell(node.point);
 	return (cell_active_timestep < 5 && cell_active_timestep != node.timestep);
 }
 
-std::vector<Node> RoutingProblem::GetNeighbors(const Node& node)
+std::vector<Node> RoutingProblem::GetNeighbors(const Node& node) const
 {
 	std::vector<Node> neighbors;
 	neighbors.emplace_back(node.timestep + 1, Point2i(node.point.x + 1, node.point.y)); // Right.
@@ -77,8 +67,8 @@ std::vector<Node> RoutingProblem::GetNeighbors(const Node& node)
 			const Point2i& point = neighbors.at(ni).point;
 
 			// If landed on a wormhole, instantaneously transport to partner coordinate.
-			if (wormhole_map_.GetCell(point) != nullptr) {
-				neighbors.at(ni).point = *wormhole_map_.GetCell(point);
+			if (wormhole_map_->GetCell(point) != nullptr) {
+				neighbors.at(ni).point = *wormhole_map_->GetCell(point);
 			}
 		}
 	}
@@ -91,7 +81,7 @@ std::vector<Node> RoutingProblem::GetNeighbors(const Node& node)
 		}
 	}
 
-	return neighbors_valid
+	return neighbors_valid;
 }
 
 }

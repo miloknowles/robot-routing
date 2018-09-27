@@ -3,6 +3,7 @@
 #include <vector>
 #include <iostream>
 #include <string>
+#include <memory>
 
 #include "utils.hpp"
 
@@ -49,11 +50,11 @@ class RoutingProblem {
 	const std::vector<Wormhole>& Wormholes() { return wormholes_; }
 
  private:
- 	const Point2i origin_point_;
- 	const Point2i goal_point_;
- 	const Grid<int> obstacle_map_;
- 	const Grid<Point2i*> wormhole_map_;
- 	const std::vector<Wormhole> wormholes_s;
+ 	Point2i origin_point_;
+ 	Point2i goal_point_;
+ 	std::shared_ptr<Grid<int>> obstacle_map_;
+ 	std::shared_ptr<Grid<Point2i*>> wormhole_map_;
+  std::vector<Wormhole> wormholes_;
 };
 
 }

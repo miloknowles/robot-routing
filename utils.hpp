@@ -2,6 +2,8 @@
 
 #include <vector>
 #include <iostream>
+#include <assert.h>
+#include <memory>
 
 namespace routing {
 
@@ -10,8 +12,10 @@ namespace routing {
  */
 struct Point2i
 {
-	int x; // Increasing right.
-	int y; // Increasing up.
+	Point2i() = default;
+	Point2i(const int x, const int y) : x(x), y(y) {}
+	int x = 0; // Increasing right.
+	int y = 0; // Increasing up.
 };
 
 /**
@@ -27,6 +31,7 @@ float ManhattanDistance(const Point2i& p1, const Point2i& p2)
  */
 template <typename CellType>
 class Grid {
+ public:
 	/**
 	 * @brief Initialize an empty grid with dimensions.
 	 */
@@ -41,6 +46,13 @@ class Grid {
 				grid_.at(j).at(i) = init;
 			}
 		}
+	}
+	/**
+	 * @brief Convenience method to create a shared pointer to a grid.
+	 */
+	static void Create(const size_t w, const size_t h, const CellType& init)
+	{
+		return std::make_shared<Grid<CellType>>(w, h, init);
 	}
 
 	const CellType& GetCell(const Point2i& xy) const
