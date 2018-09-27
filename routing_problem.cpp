@@ -5,10 +5,12 @@
 
 namespace routing {
 
+// An obstacle in the grid with this value is active on every timestep (static).
 static constexpr int kStaticObstacle = 5;
 
 RoutingProblem::RoutingProblem(const std::string& filepath)
 {
+	// Open the problem.txt and retrieve the 5 lines.
 	std::ifstream infile(filepath);
 	std::string orig_line, dest_line, barr_line, laser_line, worm_line;
 	std::getline(infile, orig_line);
