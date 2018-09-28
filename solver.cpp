@@ -114,7 +114,7 @@ int main(int argc, char const *argv[])
 	if (argc < 2) {
 		throw std::runtime_error("Need to specify a filename for a problem.txt");
 	}
-	
+
 	const std::string problem_path(argv[1]);
 
 	// Set up the routing problem.
@@ -129,6 +129,15 @@ int main(int argc, char const *argv[])
 		std::cout << "Found path!" << std::endl;
 		const std::string solution = ConvertPathToString(path);
 		std::cout << solution << std::endl;
+
+		// If solution path is provided, write path to file.
+		if (argc >= 3) {
+			const std::string solution_path(argv[2]);
+			std::cout << "Writing solution to: " << solution_path << std::endl;
+			std::ofstream outfile(solution_path);
+    	outfile << solution;
+    	outfile.close();
+		}
 	} else {
 		std::cout << "Could not find a path." << std::endl;
 	}
