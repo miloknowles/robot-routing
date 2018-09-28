@@ -62,13 +62,13 @@ class Grid {
 
 	const CellType& GetCell(const Point2i& xy) const
 	{
-		assert(xy.x < width_ && xy.y < height_);
+		assert(CellValid(xy));
 		return grid_.at(xy.y - min_cell_coord_.y).at(xy.x - min_cell_coord_.x);
 	}
 	
 	void SetCell(const Point2i& xy, const CellType& val)
 	{
-		assert(xy.x < width_ && xy.y < height_);
+		assert(CellValid(xy));
 		grid_.at(xy.y - min_cell_coord_.y).at(xy.x - min_cell_coord_.x) = val;
 	}
 
@@ -76,7 +76,7 @@ class Grid {
 	{
 		const int x = (xy.x - min_cell_coord_.x);
 		const int y = (xy.y - min_cell_coord_.y);
-		return x >= 0 && x < width_ && y >= 0 && y < height_;
+		return (x >= 0 && x < width_ && y >= 0 && y < height_);
 	}
 
  private:

@@ -67,10 +67,10 @@ RoutingProblem::RoutingProblem(const std::string& filepath)
 
 	// Now we know the boundaries of the grid - 2 squares of padding around the obstacle bounding box.
 	// See APPENDIX.md for my argument why.
-	const int width = max_corner.x - min_corner.x;
-	const int height = max_corner.y - min_corner.y;
+	const int width = max_corner.x - min_corner.x + 4 + 1;
+	const int height = max_corner.y - min_corner.y + 4 + 1;
 	const Point2i grid_min_corner = Point2i(min_corner.x - 2, min_corner.y - 2);
-	obstacle_map_ = Grid<int>::Create(width + 4, height + 4, grid_min_corner, -1);
+	obstacle_map_ = Grid<int>::Create(width, height, grid_min_corner, -1);
 
 	// Set static obstacle locations in grid.
 	for (const Point2i& pt : barrier_points) {
@@ -85,19 +85,20 @@ RoutingProblem::RoutingProblem(const std::string& filepath)
 		Point2i direction = laser.second; // Direction of the laser at the current timestep.
 		
 		for (int step = 0; step < 4; ++step) {
-			Point2i ray = laser.first; // Start on top of the laser, and cast the ray outwards.
-			while (!(obstacle_map_->GetCell(ray) == kStaticObstacle) && obstacle_map_->CellValid(ray)) {
+			// Start on the laser base, and cast ray outwards.
+			Point2i ray(laser.first.x + direction.x, laser.first.y + direction.y);
+			while (obstacle_map_->CellValid(ray) && (obstacle_map_->GetCell(ray) != kStaticObstacle)) {
+				obstacle_map_->SetCell(ray, step); // The step indicates when this cell has the laser in it.
+
 				ray.x += direction.x;
 				ray.y += direction.y;
-				obstacle_map_->SetCell(ray, step); // The step indicates when this cell has the laser in it.
 			}
 			// Rotate 90 deg clockwise.
 			direction = Point2i(direction.y, -1*direction.x);
 		}
 	}
-
 	// Finally, fill in the wormhole map. Make each wormhole location point to the other.
-	wormhole_map_ = Grid<Point2i*>::Create(width + 4, height + 4, grid_min_corner, nullptr);
+	wormhole_map_ = Grid<Point2i*>::Create(width, height, grid_min_corner, nullptr);
 	for (Wormhole wh : wormholes_) {
 		wormhole_map_->SetCell(wh.first, &wh.second);
 		wormhole_map_->SetCell(wh.second, &wh.first);

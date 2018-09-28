@@ -148,7 +148,7 @@ root@8f303cbb134f:/your_submission_dir# ./your_solver problem.txt solution.txt
 
 # Visualization
 You can use the visualizer.py script to visualize your robot in action:
-```
+```m 
 python visualizer.py problem.txt solution.txt
 ```
 

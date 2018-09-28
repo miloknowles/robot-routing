@@ -46,9 +46,11 @@ class RoutingProblem {
 	/**
 	 * @brief Accessors.
 	 */
-	const Point2i& GoalPoint() { return goal_point_; }
-	const Point2i& OriginPoint() { return origin_point_; }
-	const std::vector<Wormhole>& Wormholes() { return wormholes_; }
+	const Point2i& GoalPoint() const { return goal_point_; }
+	const Point2i& OriginPoint() const { return origin_point_; }
+	const std::vector<Wormhole>& Wormholes() const { return wormholes_; }
+	const std::shared_ptr<Grid<int>>& ObstacleMap() const { return obstacle_map_; }
+ 	const std::shared_ptr<Grid<Point2i*>>& WormholeMap() const { return wormhole_map_; }
 
  private:
  	Point2i origin_point_;
