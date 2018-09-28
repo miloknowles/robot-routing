@@ -53,7 +53,7 @@ TEST(RoutingProblemTest, TestConstructor)
 	// Test the temporal location of lasers.
 	for (int yi = 1; yi < 3; ++yi) { // North beam.
 		const Point2i test_pt(9, 5 + yi);
-		
+
 		EXPECT_EQ(0, obstacle_grid->GetCell(test_pt));
 	}
 	for (int xi = 1; xi < 3; ++xi) { // East beam.
@@ -68,6 +68,16 @@ TEST(RoutingProblemTest, TestConstructor)
 		const Point2i test_pt(9 - xi, 5);
 		EXPECT_EQ(3, obstacle_grid->GetCell(test_pt));
 	}
+
+	// Test wormhole locations.
+	std::shared_ptr<Grid<Point2i*>> wormhole_map = problem.WormholeMap();
+
+	// (2, 2) -> (10, 1)
+	EXPECT_EQ(10, wormhole_map->GetCell(Point2i(2, 2))->x);
+	EXPECT_EQ(1, wormhole_map->GetCell(Point2i(2, 2))->y);
+	// (10, 1) -> (2, 2)
+	EXPECT_EQ(2, wormhole_map->GetCell(Point2i(10, 1))->x);
+	EXPECT_EQ(2, wormhole_map->GetCell(Point2i(10, 1))->y);
 }
 
 // Run all the tests that were declared with TEST().
