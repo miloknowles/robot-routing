@@ -94,6 +94,7 @@ bool FindShortestPath(const RoutingProblem& problem, std::vector<Point2i>* path)
 
 		// Add valid neighboring nodes.
 		std::vector<Node> neighbors = problem.GetNeighbors(best);
+
 		for (Node& neighbor : neighbors) {
 			neighbor.cost_so_far = best.cost_so_far + 1; // All neighbors are 1 step away by definition.
 			neighbor.cost_using_node = neighbor.cost_so_far + HeuristicCostEstimate(problem, neighbor);

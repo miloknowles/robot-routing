@@ -80,6 +80,31 @@ TEST(RoutingProblemTest, TestConstructor)
 	EXPECT_EQ(2, wormhole_map->GetCell(Point2i(10, 1))->y);
 }
 
+/**
+ * @brief Make sure that neighbors of a node are correct.
+ */
+TEST(SolverTest, TestGetNeighbors)
+{
+	const std::string problem_path("../sample/problem.txt");
+	std::cout << "Loading from: " << problem_path << std::endl;
+	RoutingProblem problem(problem_path);
+
+	Node p1(0, Point2i(2, 2));
+	const std::vector<Node> n1 = problem.GetNeighbors(p1);
+	EXPECT_EQ(4, n1.size());
+	for (const Node& n : n1) {
+		EXPECT_EQ(1, n.timestep);
+	}
+
+	Node p2(2, Point2i(2, 1));
+	const std::vector<Node> n2 = problem.GetNeighbors(p2);
+	EXPECT_EQ(4, n2.size());
+	for (const Node& n : n2) {
+		std::cout << n.point.x << " " << n.point.y << std::endl;
+		EXPECT_EQ(3, n.timestep);
+	}
+}
+
 // Run all the tests that were declared with TEST().
 int main(int argc, char** argv)
 {

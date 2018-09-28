@@ -99,7 +99,7 @@ RoutingProblem::RoutingProblem(const std::string& filepath)
 	}
 	// Finally, fill in the wormhole map. Make each wormhole location point to the other.
 	wormhole_map_ = Grid<Point2i*>::Create(width, height, grid_min_corner, nullptr);
-	for (Wormhole wh : wormholes_) {
+	for (Wormhole& wh : wormholes_) {
 		wormhole_map_->SetCell(wh.first, &wh.second);
 		wormhole_map_->SetCell(wh.second, &wh.first);
 	}
@@ -113,7 +113,8 @@ bool RoutingProblem::IsNodeValid(const Node& node) const
 	}
 	// Make sure there are no collisions at this timestep.
 	const int cell_active_timestep = obstacle_map_->GetCell(node.point);
-	return (cell_active_timestep < kStaticObstacle && cell_active_timestep != node.timestep);
+	return (cell_active_timestep != kStaticObstacle &&
+					cell_active_timestep != (node.timestep % 4));
 }
 
 std::vector<Node> RoutingProblem::GetNeighbors(const Node& node) const

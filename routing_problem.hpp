@@ -16,13 +16,21 @@ typedef std::pair<Point2i, Point2i> Laser;
  * @brief Represents a unique state on the infinite game board.
  */
 struct Node {
+	Node() = delete;
 	Node(const size_t ts, const Point2i pt) : timestep(ts), point(pt) {}
+
 	size_t timestep;
 	Point2i point;
 	float cost_using_node = 0; // Estimated total cost using this node.
 	float cost_so_far = 0; // Distance from the start to this node.
 	int parent = -1;
 };
+
+inline void PrintNode(const Node& best)
+{
+	printf("t=%zu p=(%d, %d) cost_using=%f cost_so_far=%f\n",
+				 best.timestep, best.point.x, best.point.y, best.cost_using_node, best.cost_so_far);
+}
 
 /**
  * @brief Abstraction for an instance of a routing problem.
@@ -40,6 +48,7 @@ class RoutingProblem {
 
 	/**
 	 * @brief Gets the valid neighbors of a node by simulating forward 1 timestep.
+	 * Note: all nodes will have their time step equal to node.timestep + 1.
 	 */
 	std::vector<Node> GetNeighbors(const Node& node) const;
 
