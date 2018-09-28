@@ -1,6 +1,7 @@
 #include <iostream>
-#include <priority_queue>
+#include <queue>
 #include <algorithm>
+#include <string>
 
 #include "routing_problem.hpp"
 #include "utils.hpp"
@@ -67,27 +68,27 @@ std::vector<Point2i> ReconstructPath(const std::vector<Node>& nodes, const int f
 	return path;
 }
 
-bool FindShortestPath(const RoutingProblem& problem, std::vector<Node>* path)
+bool FindShortestPath(const RoutingProblem& problem, std::vector<Point2i>* path)
 {
 	PriorityQueue pq;
 
 	// Each time a node is expanded, it's stored here for path reconstruction later.
 	std::vector<Node> explored_nodes;
 
-	// Add the start node - parent = -1 by default.
+	// Add the start node: parent = -1 by default.
 	Node start_node(0, problem.OriginPoint());
-	start_node.cost_using_node = HeuristicCostEstimate(problem, node);
+	start_node.cost_using_node = HeuristicCostEstimate(problem, start_node);
 	pq.push(start_node);
 
 	while (!pq.empty()) {
 		// Expand the node with minimum cost_using_node.
-		Node best = pq.top();
+		const Node best = pq.top();
 		explored_nodes.emplace_back(best);
 		pq.pop();
 
 		// If goal is found, retrace the path and return success.
 		if (best.point == problem.GoalPoint()) {
-			*path = ReconstructPath(explored_nodes, explored_nodes.size() - 1);
+			*path = ReconstructPath(explored_nodes, explored_nodes.size()-1);
 			return true;
 		}
 
@@ -95,11 +96,42 @@ bool FindShortestPath(const RoutingProblem& problem, std::vector<Node>* path)
 		std::vector<Node> neighbors = problem.GetNeighbors(best);
 		for (Node& neighbor : neighbors) {
 			neighbor.cost_so_far = best.cost_so_far + 1; // All neighbors are 1 step away by definition.
-			neighbor.cost_using_node = neighbor.cost_so_far + HeuristicCostEstimate(problem, node);
+			neighbor.cost_using_node = neighbor.cost_so_far + HeuristicCostEstimate(problem, neighbor);
 			neighbor.parent = explored_nodes.size() - 1; // Point to the current expanding node.
 			pq.push(neighbor);
 		}
 	}
 
 	return false;
+}
+
+/**
+ * @brief Main loop to parse command line args and run the solver.
+ */
+int main(int argc, char const *argv[])
+{
+	// Load in a problem.txt from CLI.
+	if (argc < 2) {
+		throw std::runtime_error("Need to specify a filename for a problem.txt");
+	}
+	
+	const std::string problem_path(argv[1]);
+
+	// Set up the routing problem.
+	RoutingProblem problem(problem_path);
+	std::cout << "Loaded problem from: " << problem_path << std::endl;
+
+	// Solve for shortest path.
+	std::vector<Point2i> path;
+	bool success = FindShortestPath(problem, &path);
+
+	if (success) {
+		std::cout << "Found path!" << std::endl;
+		const std::string solution = ConvertPathToString(path);
+		std::cout << solution << std::endl;
+	} else {
+		std::cout << "Could not find a path." << std::endl;
+	}
+
+	return 0;
 }

@@ -107,6 +107,11 @@ RoutingProblem::RoutingProblem(const std::string& filepath)
 
 bool RoutingProblem::IsNodeValid(const Node& node) const
 {
+	// Make sure the node has a point that is within bounds.
+	if (!obstacle_map_->CellValid(node.point)) {
+		return false;
+	}
+	// Make sure there are no collisions at this timestep.
 	const int cell_active_timestep = obstacle_map_->GetCell(node.point);
 	return (cell_active_timestep < kStaticObstacle && cell_active_timestep != node.timestep);
 }
@@ -125,7 +130,7 @@ std::vector<Node> RoutingProblem::GetNeighbors(const Node& node) const
 			const Point2i& point = neighbors.at(ni).point;
 
 			// If landed on a wormhole, instantaneously transport to partner coordinate.
-			if (wormhole_map_->GetCell(point) != nullptr) {
+			if (wormhole_map_->CellValid(point) && wormhole_map_->GetCell(point) != nullptr) {
 				neighbors.at(ni).point = *wormhole_map_->GetCell(point);
 			}
 		}

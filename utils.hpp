@@ -22,6 +22,11 @@ struct Point2i
 	int y = 0; // Increasing up.
 };
 
+static bool operator==(const Point2i& p1, const Point2i& p2)
+{
+	return (p1.x == p2.x && p1.y == p2.y);
+}
+
 /**
  * @brief Manhattan distance between two integer points.
  */
@@ -134,6 +139,23 @@ inline Point2i CardinalDirectionToVector(const std::string& dir)
 	} else {
 		throw std::runtime_error("Unrecognized cardinal direction.");
 	}
+}
+
+inline std::string ConvertPathToString(const std::vector<Point2i>& path)
+{
+	std::string output = "[";
+	for (size_t i = 0; i < path.size(); ++i) {
+		const Point2i& pt = path.at(i);
+		
+		char buf[4 + std::to_string(pt.x).size() + std::to_string(pt.y).size()];
+		int size = sprintf(buf, "(%d, %d)", path.at(i).x, path.at(i).y);
+		output += std::string(buf);
+
+		// Add comma between coords if not the last one.
+		if (i != path.size() - 1) { output += ", "; }
+	}
+	output += "]";
+	return output;
 }
 
 }
