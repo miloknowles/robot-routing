@@ -70,6 +70,10 @@ class Grid {
 		assert(CellValid(xy));
 		return grid_.at(xy.y - min_cell_coord_.y).at(xy.x - min_cell_coord_.x);
 	}
+	CellType* GetCellMutable(const Point2i& xy)
+	{
+		return &grid_.at(xy.y - min_cell_coord_.y).at(xy.x - min_cell_coord_.x);
+	}
 	
 	void SetCell(const Point2i& xy, const CellType& val)
 	{
@@ -82,6 +86,14 @@ class Grid {
 		const int x = (xy.x - min_cell_coord_.x);
 		const int y = (xy.y - min_cell_coord_.y);
 		return (x >= 0 && x < width_ && y >= 0 && y < height_);
+	}
+	std::pair<size_t, size_t> Dimensions() const
+	{
+		return std::pair<size_t, size_t>(width_, height_);
+	}
+	const Point2i& MinCellCoord() const
+	{
+		return min_cell_coord_;
 	}
 
  private:

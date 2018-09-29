@@ -2,11 +2,15 @@
 #include <queue>
 #include <algorithm>
 #include <string>
+#include <tuple>
+#include <unordered_set>
 
 #include "routing_problem.hpp"
 #include "utils.hpp"
 
 using namespace routing;
+
+typedef std::tuple<size_t, int, int> SearchPoint;
 
 /**
  * @brief Custom comparator for nodes, used in priority queue.
@@ -16,7 +20,7 @@ class CompareNode {
  public:
   bool operator()(const Node& lhs, const Node& rhs)
   {
-  	return (lhs.cost_using_node > rhs.cost_using_node);
+  	return (lhs.timestep > rhs.timestep);
   }
 };
 
@@ -70,6 +74,12 @@ std::vector<Point2i> ReconstructPath(const std::vector<Node>& nodes, const int f
 
 bool FindShortestPath(const RoutingProblem& problem, std::vector<Point2i>* path)
 {
+	// Maintain a grid of 3D points that have been expanded to avoid revisiting.
+	const std::pair<size_t, size_t>& dims = problem.ObstacleMap()->Dimensions();
+	const Point2i& min_cell = problem.ObstacleMap()->MinCellCoord();
+	Grid<std::vector<bool>> expanded(dims.first, dims.second, min_cell, std::vector<bool>(12, 0));
+
+	// Best-first search will use a priority queue.
 	PriorityQueue pq;
 
 	// Each time a node is expanded, it's stored here for path reconstruction later.
@@ -80,11 +90,19 @@ bool FindShortestPath(const RoutingProblem& problem, std::vector<Point2i>* path)
 	start_node.cost_using_node = HeuristicCostEstimate(problem, start_node);
 	pq.push(start_node);
 
+	int frontier = 0;
+
 	while (!pq.empty()) {
 		// Expand the node with minimum cost_using_node.
 		const Node best = pq.top();
 		explored_nodes.emplace_back(best);
 		pq.pop();
+
+		if (best.timestep > frontier) {
+			frontier = best.timestep;
+			std::cout << "Frontier: " << frontier << std::endl;
+			std::cout << "queue size: " << pq.size() << std::endl;
+		}
 
 		// If goal is found, retrace the path and return success.
 		if (best.point == problem.GoalPoint()) {
@@ -96,10 +114,19 @@ bool FindShortestPath(const RoutingProblem& problem, std::vector<Point2i>* path)
 		std::vector<Node> neighbors = problem.GetNeighbors(best);
 
 		for (Node& neighbor : neighbors) {
+			// Skip this neighbor if an equivalent point in the search space has already been explored.
+			if (expanded.GetCell(neighbor.point).at(neighbor.timestep % 12) == true) {
+				continue;
+			}
+
 			neighbor.cost_so_far = best.cost_so_far + 1; // All neighbors are 1 step away by definition.
 			neighbor.cost_using_node = neighbor.cost_so_far + HeuristicCostEstimate(problem, neighbor);
 			neighbor.parent = explored_nodes.size() - 1; // Point to the current expanding node.
 			pq.push(neighbor);
+
+			// Mark that this search point (x, y, t % 12) has been added to avoid duplicates.
+			std::vector<bool>* const expanded_point = expanded.GetCellMutable(neighbor.point);
+			expanded_point->at(neighbor.timestep % 12) = true;
 		}
 	}
 

@@ -38,10 +38,8 @@ TEST(RoutingProblemTest, TestConstructor)
 	RoutingProblem problem(problem_path);
 
 	// Test the start and goal postions.
-	EXPECT_EQ(2, problem.OriginPoint().x);
-	EXPECT_EQ(3, problem.OriginPoint().y);
-	EXPECT_EQ(8, problem.GoalPoint().x);
-	EXPECT_EQ(1, problem.GoalPoint().y);
+	EXPECT_EQ(Point2i(2, 3), problem.OriginPoint());
+	EXPECT_EQ(Point2i(8, 1), problem.GoalPoint());
 
 	// Test the location of static obstacles.
 	const std::shared_ptr<Grid<int>> obstacle_grid = problem.ObstacleMap();
@@ -73,11 +71,9 @@ TEST(RoutingProblemTest, TestConstructor)
 	std::shared_ptr<Grid<Point2i*>> wormhole_map = problem.WormholeMap();
 
 	// (2, 2) -> (10, 1)
-	EXPECT_EQ(10, wormhole_map->GetCell(Point2i(2, 2))->x);
-	EXPECT_EQ(1, wormhole_map->GetCell(Point2i(2, 2))->y);
+	EXPECT_EQ(Point2i(10, 1), *wormhole_map->GetCell(Point2i(2, 2)));
 	// (10, 1) -> (2, 2)
-	EXPECT_EQ(2, wormhole_map->GetCell(Point2i(10, 1))->x);
-	EXPECT_EQ(2, wormhole_map->GetCell(Point2i(10, 1))->y);
+	EXPECT_EQ(Point2i(2, 2), *wormhole_map->GetCell(Point2i(10, 1)));
 }
 
 /**
@@ -103,6 +99,33 @@ TEST(SolverTest, TestGetNeighbors)
 		std::cout << n.point.x << " " << n.point.y << std::endl;
 		EXPECT_EQ(3, n.timestep);
 	}
+}
+
+/**
+ * @brief Test setup for problem1 to debug.
+ */
+TEST(SolverTest, TestProblem1)
+{
+	const std::string problem_path("../problem1/problem.txt");
+	std::cout << "Loading from: " << problem_path << std::endl;
+	RoutingProblem problem(problem_path);
+
+	// Check start and goal locations.
+	EXPECT_EQ(Point2i(2, 3), problem.OriginPoint());
+	EXPECT_EQ(Point2i(8, 1), problem.GoalPoint());
+
+	// Check obstacle locations.
+	std::shared_ptr<Grid<int>> obstacle_grid = problem.ObstacleMap();
+	EXPECT_EQ(kStaticObstacle, obstacle_grid->GetCell(Point2i(7, 1)));
+	EXPECT_EQ(kStaticObstacle, obstacle_grid->GetCell(Point2i(8, 0)));
+	EXPECT_EQ(kStaticObstacle, obstacle_grid->GetCell(Point2i(8, 2)));
+	EXPECT_EQ(kStaticObstacle, obstacle_grid->GetCell(Point2i(9, 2)));
+	EXPECT_EQ(kStaticObstacle, obstacle_grid->GetCell(Point2i(10, 2)));
+
+	// Make sure the path to the goal is clear.
+	EXPECT_EQ(-1, obstacle_grid->GetCell(Point2i(2, 3)));
+	EXPECT_EQ(-1, obstacle_grid->GetCell(Point2i(8, 1)));
+	EXPECT_EQ(-1, obstacle_grid->GetCell(Point2i(9, 1)));
 }
 
 // Run all the tests that were declared with TEST().
