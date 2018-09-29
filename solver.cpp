@@ -64,10 +64,13 @@ std::vector<Point2i> ReconstructPath(const std::vector<Node>& nodes, const int f
 	int current_idx = from_idx;
 	std::vector<Point2i> path;
 
-	while (current_idx > 0) {
+	while (current_idx >= 0) {
 		path.emplace_back(nodes.at(current_idx).point);
 		current_idx = nodes.at(current_idx).parent;
 	}
+
+	// Reverse the path to put in correct order.
+	std::reverse(path.begin(), path.end());
 
 	return path;
 }
