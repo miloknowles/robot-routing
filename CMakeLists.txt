@@ -10,7 +10,7 @@ set(CMAKE_CXX_STANDARD 11)
 
 ############# GOOGLE TEST ###############
 # Download and unpack googletest at configure time.
-configure_file(CMakeLists.txt.in googletest-download/CMakeLists.txt)
+configure_file(./solver/CMakeLists.txt.in googletest-download/CMakeLists.txt)
 execute_process(COMMAND ${CMAKE_COMMAND} -G "${CMAKE_GENERATOR}" .
   RESULT_VARIABLE result
   WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/googletest-download )
@@ -41,21 +41,5 @@ if (CMAKE_VERSION VERSION_LESS 2.8.11)
   include_directories("${gtest_SOURCE_DIR}/include")
 endif()
 
-############### ROBOT ROUTING ###################
-
-# Add the robot routing library.
-add_library(robot_routing
-	utils.cpp
-	routing_problem.cpp
-)
-
-# Add the main solver executable.
-add_executable(run_solver solver.cpp)
-target_link_libraries(run_solver
-	robot_routing)
-
-# Add tests and link against gtest.
-add_executable(run_tests test.cpp)
-target_link_libraries(run_tests
-	robot_routing
-	gtest_main)
+# Build the solver.
+add_subdirectory(./solver)
