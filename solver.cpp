@@ -1,4 +1,5 @@
 #include <iostream>
+#include <fstream>
 #include <queue>
 #include <algorithm>
 #include <string>
@@ -44,26 +45,11 @@ typedef std::priority_queue<Node, std::vector<Node>, CompareNode> PriorityQueue;
  */
 float HeuristicCostEstimate(const RoutingProblem& problem, const Node& node)
 {
-	// const Point2i& goal_point = problem.GoalPoint();
+	// For problems with no wormholes, use a simple Manhattan heuristic.
+	if (problem.Wormholes().size() == 0) {
+		return ManhattanDistance(node.point, problem.GoalPoint());
+	}
 
-	// // Manhattan distance (if no obstacles were present).
-	// float min_dist = ManhattanDistance(node.point, goal_point);
-
-	// // Need to consider shortcuts due to wormholes appearing.
-	// // This ensures that the heuristic is admissible (does not overestimate distance).
-	// const int sec_until_wormhole = 3 - (node.timestep % 3);
-
-	// for (const Wormhole& wh : problem.Wormholes()) {
-	// 	// Could go through the wormhole in either direction.
-	// 	const float d1 = ManhattanDistance(node.point, wh.first) + ManhattanDistance(wh.second, goal_point);
-	// 	const float d2 = ManhattanDistance(node.point, wh.second) + ManhattanDistance(wh.first, goal_point);
-
-	// 	// Need to move around for sec_until_wormhole in addition to the distance.
-	// 	const float wormhole_dist = std::min(d1, d2) + sec_until_wormhole;
-	// 	min_dist = std::min(min_dist, wormhole_dist);
-	// }
-
-	// return min_dist;
 	return 0.0f;
 }
 

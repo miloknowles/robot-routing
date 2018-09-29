@@ -98,10 +98,12 @@ RoutingProblem::RoutingProblem(const std::string& filepath)
 		}
 	}
 	// Finally, fill in the wormhole map. Make each wormhole location point to the other.
-	wormhole_map_ = Grid<Point2i*>::Create(width, height, grid_min_corner, nullptr);
-	for (Wormhole& wh : wormholes_) {
-		wormhole_map_->SetCell(wh.first, &wh.second);
-		wormhole_map_->SetCell(wh.second, &wh.first);
+	if (wormholes_.size() > 0) {
+		wormhole_map_ = Grid<Point2i*>::Create(width, height, grid_min_corner, nullptr);
+		for (Wormhole& wh : wormholes_) {
+			wormhole_map_->SetCell(wh.first, &wh.second);
+			wormhole_map_->SetCell(wh.second, &wh.first);
+		}
 	}
 }
 
@@ -131,7 +133,8 @@ std::vector<Node> RoutingProblem::GetNeighbors(const Node& node) const
 			const Point2i& point = neighbors.at(ni).point;
 
 			// If landed on a wormhole, instantaneously transport to partner coordinate.
-			if (wormhole_map_->CellValid(point) && wormhole_map_->GetCell(point) != nullptr) {
+			if (wormhole_map_ != nullptr && wormhole_map_->CellValid(point) &&
+					wormhole_map_->GetCell(point) != nullptr) {
 				neighbors.at(ni).point = *wormhole_map_->GetCell(point);
 			}
 		}

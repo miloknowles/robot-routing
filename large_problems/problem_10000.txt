@@ -1,0 +1,7 @@
+(0, 0)
+(10000, 10000)
+[]
+[]
+[]
+
+# Takes about 1 minute on my machine w/ 16gb of memory and an i7 processor.
