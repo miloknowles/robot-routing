@@ -19,17 +19,16 @@ struct Node {
 	Node() = delete;
 	Node(const size_t ts, const Point2i pt) : timestep(ts), point(pt) {}
 
-	size_t timestep;
+	size_t timestep; // The cost-so-far from the start node.
 	Point2i point;
 	float cost_using_node = 0; // Estimated total cost using this node.
-	float cost_so_far = 0; // Distance from the start to this node.
 	int parent = -1;
 };
 
 inline void PrintNode(const Node& best)
 {
-	printf("t=%zu p=(%d, %d) cost_using=%f cost_so_far=%f\n",
-				 best.timestep, best.point.x, best.point.y, best.cost_using_node, best.cost_so_far);
+	printf("t=%zu p=(%d, %d) cost_using=%f",
+				 best.timestep, best.point.x, best.point.y, best.cost_using_node);
 }
 
 /**
