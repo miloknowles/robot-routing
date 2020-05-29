@@ -22,7 +22,7 @@ class CompareNode {
  public:
   bool operator()(const Node& lhs, const Node& rhs)
   {
-  	return (lhs.cost_using_node > rhs.cost_using_node);
+    return (lhs.cost_using_node > rhs.cost_using_node);
   }
 };
 
@@ -33,24 +33,24 @@ typedef std::priority_queue<Node, std::vector<Node>, CompareNode> PriorityQueue;
 
 /**
  * @brief Returns the estimated cost-to-go from a node.
- * 
+ *
  * Note: this must be admissible in order for A* optimality. If there were no wormholes, this could
  * simply be the Manhattan distance between a node and the goal, since that would be a lower bound
  * on the distance left. However, the wormholes create shortcuts that break this heuristic.
  * One possible heuristic is to consider all possible ways to use wormholes to get to the goal,
  * but this becomes exponential in the number of wormholes.
- * 
+ *
  * Setting the heuristic to zero will simply perform a breadth-first search, since all nodes with
  * equal cost-so-far will be given equal priority.
  */
 float HeuristicCostEstimate(const RoutingProblem& problem, const Node& node)
 {
-	// For problems with no wormholes, use a simple Manhattan heuristic.
-	if (problem.Wormholes().size() == 0) {
-		return ManhattanDistance(node.point, problem.GoalPoint());
-	}
+  // For problems with no wormholes, use a simple Manhattan heuristic.
+  if (problem.Wormholes().size() == 0) {
+    return ManhattanDistance(node.point, problem.GoalPoint());
+  }
 
-	return 0.0f;
+  return 0.0f;
 }
 
 /**
@@ -62,19 +62,19 @@ float HeuristicCostEstimate(const RoutingProblem& problem, const Node& node)
  */
 std::vector<Point2i> ReconstructPath(const std::vector<Node>& nodes, const int from_idx)
 {
-	// Expect from_idx to point to the goal node (should be the last).
-	int current_idx = from_idx;
-	std::vector<Point2i> path;
+  // Expect from_idx to point to the goal node (should be the last).
+  int current_idx = from_idx;
+  std::vector<Point2i> path;
 
-	while (current_idx >= 0) {
-		path.emplace_back(nodes.at(current_idx).point);
-		current_idx = nodes.at(current_idx).parent;
-	}
+  while (current_idx >= 0) {
+    path.emplace_back(nodes.at(current_idx).point);
+    current_idx = nodes.at(current_idx).parent;
+  }
 
-	// Reverse the path to put in correct order.
-	std::reverse(path.begin(), path.end());
+  // Reverse the path to put in correct order.
+  std::reverse(path.begin(), path.end());
 
-	return path;
+  return path;
 }
 
 /**
@@ -84,65 +84,65 @@ std::vector<Point2i> ReconstructPath(const std::vector<Node>& nodes, const int f
  */
 bool FindShortestPath(const RoutingProblem& problem, std::vector<Point2i>* path)
 {
-	// Maintain a 3D grid of points in the search space that have been added to
-	// the priority queue. This helps avoid revisiting points in search space.
-	// See APPENDIX.md for an explanation of where the constant 12 comes from.
-	const std::pair<size_t, size_t>& dims = problem.ObstacleMap()->Dimensions();
-	const Point2i& min_cell = problem.ObstacleMap()->MinCellCoord();
-	Grid<std::vector<bool>> expanded(dims.first, dims.second, min_cell,
-																	 std::vector<bool>(kTotalUniqueTimesteps, 0));
+  // Maintain a 3D grid of points in the search space that have been added to
+  // the priority queue. This helps avoid revisiting points in search space.
+  // See APPENDIX.md for an explanation of where the constant 12 comes from.
+  const std::pair<size_t, size_t>& dims = problem.ObstacleMap()->Dimensions();
+  const Point2i& min_cell = problem.ObstacleMap()->MinCellCoord();
+  Grid<std::vector<bool>> expanded(dims.first, dims.second, min_cell,
+                                   std::vector<bool>(kTotalUniqueTimesteps, 0));
 
-	PriorityQueue pq;
+  PriorityQueue pq;
 
-	// Each time a node is expanded, it's stored here for path reconstruction later.
-	std::vector<Node> expanded_nodes;
+  // Each time a node is expanded, it's stored here for path reconstruction later.
+  std::vector<Node> expanded_nodes;
 
-	// Add the start node: parent = -1 by default.
-	Node start_node(0, problem.OriginPoint());
-	start_node.cost_using_node = HeuristicCostEstimate(problem, start_node);
-	pq.push(start_node);
+  // Add the start node: parent = -1 by default.
+  Node start_node(0, problem.OriginPoint());
+  start_node.cost_using_node = HeuristicCostEstimate(problem, start_node);
+  pq.push(start_node);
 
-	while (!pq.empty()) {
-		// Expand the node with minimum cost_using_node.
-		const Node best = pq.top();
-		expanded_nodes.emplace_back(best);
-		pq.pop();
+  while (!pq.empty()) {
+    // Expand the node with minimum cost_using_node.
+    const Node best = pq.top();
+    expanded_nodes.emplace_back(best);
+    pq.pop();
 
-		// If goal is found, retrace the path and return success.
-		if (best.point == problem.GoalPoint()) {
-			*path = ReconstructPath(expanded_nodes, expanded_nodes.size()-1);
-			return true;
-		}
+    // If goal is found, retrace the path and return success.
+    if (best.point == problem.GoalPoint()) {
+      *path = ReconstructPath(expanded_nodes, expanded_nodes.size()-1);
+      return true;
+    }
 
-		// Add valid neighboring nodes.
-		std::vector<Node> neighbors = problem.GetNeighbors(best);
+    // Add valid neighboring nodes.
+    std::vector<Node> neighbors = problem.GetNeighbors(best);
 
-		for (Node& neighbor : neighbors) {
-			// Skip this neighbor if an equivalent point in the search space has already been explored.
-			if (expanded.GetCell(neighbor.point).at(neighbor.timestep % kTotalUniqueTimesteps) == true) {
-				continue;
-			}
+    for (Node& neighbor : neighbors) {
+      // Skip this neighbor if an equivalent point in the search space has already been explored.
+      if (expanded.GetCell(neighbor.point).at(neighbor.timestep % kTotalUniqueTimesteps) == true) {
+        continue;
+      }
 
-			// (Estimated) total cost using node = cost-so-far + cost-to-go
-			neighbor.cost_using_node = neighbor.timestep + HeuristicCostEstimate(problem, neighbor);
+      // (Estimated) total cost using node = cost-so-far + cost-to-go
+      neighbor.cost_using_node = neighbor.timestep + HeuristicCostEstimate(problem, neighbor);
 
-			// Point this node to the parent that was just expanded (and added to expanded_nodes).
-			neighbor.parent = (expanded_nodes.size() - 1);
-			pq.push(neighbor);
+      // Point this node to the parent that was just expanded (and added to expanded_nodes).
+      neighbor.parent = (expanded_nodes.size() - 1);
+      pq.push(neighbor);
 
-			// Mark that this search point (x, y, t % 12) has been pushed to the queue.
-			std::vector<bool>* const expanded_point = expanded.GetCellMutable(neighbor.point);
-			expanded_point->at(neighbor.timestep % kTotalUniqueTimesteps) = true;
-		}
-	}
+      // Mark that this search point (x, y, t % 12) has been pushed to the queue.
+      std::vector<bool>* const expanded_point = expanded.GetCellMutable(neighbor.point);
+      expanded_point->at(neighbor.timestep % kTotalUniqueTimesteps) = true;
+    }
+  }
 
-	return false;
+  return false;
 }
 
 void Usage()
 {
-	std::cout << "\nusage: ./run_solver path/to/problem.txt [path/to/solution.txt] \n"
-	<< "If a path to a solution.txt is provided, the output will be written there.\n" << std::endl;
+  std::cout << "\nusage: ./run_solver path/to/problem.txt [path/to/solution.txt] \n"
+  << "If a path to a solution.txt is provided, the output will be written there.\n" << std::endl;
 }
 
 /**
@@ -150,43 +150,43 @@ void Usage()
  */
 int main(int argc, char const *argv[])
 {
-	// Load in a problem.txt from CLI.
-	if (argc < 2) {
-		Usage(); // Give help message.
-		throw std::runtime_error("Need to specify a filename for a problem.txt");
-	}
+  // Load in a problem.txt from CLI.
+  if (argc < 2) {
+    Usage(); // Give help message.
+    throw std::runtime_error("Need to specify a filename for a problem.txt");
+  }
 
-	const std::string problem_path(argv[1]);
+  const std::string problem_path(argv[1]);
 
-	// Set up the routing problem.
-	RoutingProblem problem(problem_path);
-	std::cout << "Loaded problem from: " << problem_path << std::endl;
+  // Set up the routing problem.
+  RoutingProblem problem(problem_path);
+  std::cout << "Loaded problem from: " << problem_path << std::endl;
 
-	// Solve for shortest path.
-	std::vector<Point2i> path;
+  // Solve for shortest path.
+  std::vector<Point2i> path;
 
-	const auto start_t = std::chrono::high_resolution_clock::now();
-	bool success = FindShortestPath(problem, &path);
-	const auto finish_t = std::chrono::high_resolution_clock::now();
-	const std::chrono::duration<double> elapsed = finish_t - start_t;
+  const auto start_t = std::chrono::high_resolution_clock::now();
+  bool success = FindShortestPath(problem, &path);
+  const auto finish_t = std::chrono::high_resolution_clock::now();
+  const std::chrono::duration<double> elapsed = finish_t - start_t;
 
-	if (success) {
-		std::cout << "Found path!" << std::endl;
-		const std::string solution = ConvertPathToString(path);
-		std::cout << solution << std::endl;
+  if (success) {
+    std::cout << "Found path!" << std::endl;
+    const std::string solution = ConvertPathToString(path);
+    std::cout << solution << std::endl;
 
-		// If solution path is provided, write path to file.
-		if (argc >= 3) {
-			const std::string solution_path(argv[2]);
-			std::cout << "Writing solution to: " << solution_path << std::endl;
-			std::ofstream outfile(solution_path);
-    	outfile << solution;
-    	outfile.close();
-		}
-	} else {
-		std::cout << "Could not find a path." << std::endl;
-	}
-	printf("runtime=%lf sec \n", elapsed.count());
+    // If solution path is provided, write path to file.
+    if (argc >= 3) {
+      const std::string solution_path(argv[2]);
+      std::cout << "Writing solution to: " << solution_path << std::endl;
+      std::ofstream outfile(solution_path);
+    outfile << solution;
+    outfile.close();
+    }
+  } else {
+    std::cout << "Could not find a path." << std::endl;
+  }
+  printf("runtime=%lf sec \n", elapsed.count());
 
-	return 0;
+  return 0;
 }
