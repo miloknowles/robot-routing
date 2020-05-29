@@ -1,9 +1,14 @@
 # Instructions
 
 ## Project layout
+
+**Please see `INSTRUCTIONS.md` for a description of this toy robot path planning problem.**
+
 All of my code is in ```solver/``` to keep things clean. The file ```solver.cpp``` is the main executable.
 
 ## Building
+
+This code has been successfully built and run on Ubuntu 16.04 and 18.04.
 
 ```bash
 # Dependencies.
