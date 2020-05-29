@@ -33,7 +33,7 @@ TEST(GridTest, TestCellValid)
  */
 TEST(RoutingProblemTest, TestConstructor)
 {
-  const std::string problem_path("../sample/problem.txt");
+  const std::string problem_path("../../sample/problem.txt");
   std::cout << "Loading from: " << problem_path << std::endl;
   RoutingProblem problem(problem_path);
 
@@ -81,7 +81,7 @@ TEST(RoutingProblemTest, TestConstructor)
  */
 TEST(SolverTest, TestGetNeighbors)
 {
-  const std::string problem_path("../sample/problem.txt");
+  const std::string problem_path("../../sample/problem.txt");
   std::cout << "Loading from: " << problem_path << std::endl;
   RoutingProblem problem(problem_path);
 
@@ -106,7 +106,7 @@ TEST(SolverTest, TestGetNeighbors)
  */
 TEST(SolverTest, TestProblem1)
 {
-  const std::string problem_path("../problem1/problem.txt");
+  const std::string problem_path("../../problem1/problem.txt");
   std::cout << "Loading from: " << problem_path << std::endl;
   RoutingProblem problem(problem_path);
 

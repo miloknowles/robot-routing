@@ -27,6 +27,11 @@ Run it with (e.g)
 
 ## Running tests
 
-I added some tests in ```test.cpp```, mainly for my own debugging. There is an executable called ```run_tests``` in the ```build/solver/``` directory also.
+I added some tests in ```test.cpp```, mainly for my own debugging. There is an executable called ```run_tests``` in the ```build/solver/``` directory also. Some relative file paths used in the tests will ONLY work if you run it from that directory.
+
+```bash
+cd build/solver/
+./run_tests
+```
 
 I also added some problems in ```large_problems/``` to test my routing algorithm at a larger scale. Due to the sparsity of these problems (no obstacles) and my design choices, my solver wastes a lot of space for these, but still runs in a reasonable amount of time up to a 10,000 x 10,000 board.
